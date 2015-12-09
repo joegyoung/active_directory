@@ -500,7 +500,7 @@ p "cn --> #{cn}"
 p "moveto -->#{new_rdn}"
 			if ldap.rename(
 				:olddn => distinguishedName,
-				:newrdn => cn,
+				:newrdn => "CN=#{cn}",
 				:delete_attributes => true,
 				:new_superior => "#{new_rdn}"
 			)
