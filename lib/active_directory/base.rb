@@ -502,7 +502,7 @@ p "moveto -->#{new_rdn}"
 				:olddn => distinguishedName,
 				:newrdn => cn,
 				:delete_attributes => true,
-				new_superior: new_rdn)
+				:new_superior => new_rdn)
 			)
 				return true
 			else
