@@ -496,11 +496,13 @@ module ActiveDirectory
 
 
 p "distinguishedName --> #{distinguishedName}"
-p "distinguishedName --> #{cn}"
+p "cn --> #{cn}"
+p "moveto -->#{new_rdn}"
 			if ldap.rename(
 				:olddn => distinguishedName,
-				:newrdn => new_rdn,
-				:delete_attributes => false
+				:newrdn => cn,
+				:delete_attributes => true,
+				new_superior: new_rdn)
 			)
 				return true
 			else
