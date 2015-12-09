@@ -494,6 +494,9 @@ module ActiveDirectory
 
 			ldap = Net::LDAP.new(settings)
 
+
+p "distinguishedName --> #{distinguishedName}"
+p "distinguishedName --> #{cn}"
 			if ldap.rename(
 				:olddn => distinguishedName,
 				:newrdn => new_rdn,
