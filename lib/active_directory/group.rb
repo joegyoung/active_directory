@@ -21,34 +21,34 @@
 require 'active_directory/attributes'
 
 module ActiveDirectory
-	class Group < Base
-		include Member
+  class Group < Base
+    include Member
 
-		def self.filter # :nodoc:
-			Net::LDAP::Filter.eq(:objectClass,'group')
-		end
+    def self.filter # :nodoc:
+      Net::LDAP::Filter.eq(:objectClass, 'group')
+    end
 
-		def self.required_attributes # :nodoc:
-			{ :objectClass => [ 'top', 'group' ] }
-		end
+    def self.required_attributes # :nodoc:
+      { objectClass: %w[top group] }
+    end
 
-		def reload # :nodoc:
-			@member_users_non_r  = nil
-			@member_users_r      = nil
-			@member_groups_non_r = nil
-			@member_groups_r     = nil
-			@groups              = nil
-			super
-		end
+    def reload # :nodoc:
+      @member_users_non_r  = nil
+      @member_users_r      = nil
+      @member_groups_non_r = nil
+      @member_groups_r     = nil
+      @groups              = nil
+      super
+    end
 
-		#
-		# Returns true if the passed User or Group object belongs to
-		# this group. For performance reasons, the check is handled
-		# by the User or Group object passed.
-		#
-		def has_member?(user)
-			user.member_of?(self)
-		end
+    #
+    # Returns true if the passed User or Group object belongs to
+    # this group. For performance reasons, the check is handled
+    # by the User or Group object passed.
+    #
+    def has_member?(user)
+      user.member_of?(self)
+    end
 
     def self.create_security_group(ou, name, type)
       type_mask = GroupType::SECURITY_ENABLED
@@ -62,101 +62,99 @@ module ActiveDirectory
       else
         raise "Unknown type specified : #{type}"
       end
-      dn = 'CN=' + name + "," + ou
+      dn = 'CN=' + name + ',' + ou
       attributes = {
-        :objectClass => ['top', 'group'],
-        :sAMAccountName => name,
-        :objectCategory => "CN=Group,CN=Schema,CN=Configuration,DC=afssa,DC=fr",
-        :groupType => type_mask.to_s
+        objectClass: %w[top group],
+        sAMAccountName: name,
+        objectCategory: 'CN=Group,CN=Schema,CN=Configuration,DC=afssa,DC=fr',
+        groupType: type_mask.to_s
       }
-      @@ldap.add(:dn => dn, :attributes => attributes)
-      self.from_dn(dn)
+      @@ldap.add(dn: dn, attributes: attributes)
+      from_dn(dn)
     end
 
-		#
-		# Add the passed User or Group object to this Group. Returns true if
-		# the User or Group is already a member of the group, or if the operation
-		# to add them succeeds.
-		#
-		def add(new_member)
-			return false unless new_member.is_a?(User) || new_member.is_a?(Group)
-			if @@ldap.modify(:dn => distinguishedName, :operations => [
-				[ :add, :member, new_member.distinguishedName ]
-			])
-				return true
-			else
-				return has_member?(new_member)
-			end
-		end
+    #
+    # Add the passed User or Group object to this Group. Returns true if
+    # the User or Group is already a member of the group, or if the operation
+    # to add them succeeds.
+    #
+    def add(new_member)
+      return false unless new_member.is_a?(User) || new_member.is_a?(Group)
+      if @@ldap.modify(dn: distinguishedName, operations: [
+                         [:add, :member, new_member.distinguishedName]
+                       ])
+        return true
+      else
+        return has_member?(new_member)
+      end
+    end
 
-		#
-		# Remove a User or Group from this Group. Returns true if the User or
-		# Group does not belong to this Group, or if the oepration to remove them
-		# succeeds.
-		#
-		def remove(member)
-			return false unless member.is_a?(User) || member.is_a?(Group)
-			if @@ldap.modify(:dn => distinguishedName, :operations => [
-				[ :delete, :member, member.distinguishedName ]
-			])
-				return true
-			else
-				return !has_member?(member)
-			end
-		end
+    #
+    # Remove a User or Group from this Group. Returns true if the User or
+    # Group does not belong to this Group, or if the oepration to remove them
+    # succeeds.
+    #
+    def remove(member)
+      return false unless member.is_a?(User) || member.is_a?(Group)
+      if @@ldap.modify(dn: distinguishedName, operations: [
+                         [:delete, :member, member.distinguishedName]
+                       ])
+        return true
+      else
+        return !has_member?(member)
+      end
+    end
 
-		def has_members?
-			begin
-				return (@entry.member.nil? || @entry.member.empty?) ? false : true
-			rescue NoMethodError
-				return false
-			end
-		end
+    def has_members?
+      return @entry.member.nil? || @entry.member.empty? ? false : true
+    rescue NoMethodError
+      return false
+    end
 
-		#
-		# Returns an array of all User objects that belong to this group.
-		#
-		# If the recursive argument is passed as false, then only Users who
-		# belong explicitly to this Group are returned.
-		#
-		# If the recursive argument is passed as true, then all Users who
-		# belong to this Group, or any of its subgroups, are returned.
-		#
-		def member_users(recursive = false)
-                        @member_users = User.find(:all, :distinguishedname => @entry[:member]).delete_if { |u| u.nil? }
-                        if recursive then
-                          self.member_groups.each do |group|
-                            @member_users.concat(group.member_users(true))
-                          end
-                        end
-                        return @member_users
-		end
+    #
+    # Returns an array of all User objects that belong to this group.
+    #
+    # If the recursive argument is passed as false, then only Users who
+    # belong explicitly to this Group are returned.
+    #
+    # If the recursive argument is passed as true, then all Users who
+    # belong to this Group, or any of its subgroups, are returned.
+    #
+    def member_users(recursive = false)
+      @member_users = User.find(:all, distinguishedname: @entry[:member]).delete_if(&:nil?)
+      if recursive
+        member_groups.each do |group|
+          @member_users.concat(group.member_users(true))
+        end
+      end
+      @member_users
+    end
 
-		#
-		# Returns an array of all Group objects that belong to this group.
-		#
-		# If the recursive argument is passed as false, then only Groups that
-		# belong explicitly to this Group are returned.
-		#
-		# If the recursive argument is passed as true, then all Groups that
-		# belong to this Group, or any of its subgroups, are returned.
-		#
-		def member_groups(recursive = false)
-                        @member_groups ||= Group.find(:all, :distinguishedname => @entry[:member]).delete_if { |g| g.nil? }
-                        if recursive then
-                          self.member_groups.each do |group|
-                            @member_groups.concat(group.member_groups(true))
-                          end
-                        end
-                        return @member_groups
-		end
+    #
+    # Returns an array of all Group objects that belong to this group.
+    #
+    # If the recursive argument is passed as false, then only Groups that
+    # belong explicitly to this Group are returned.
+    #
+    # If the recursive argument is passed as true, then all Groups that
+    # belong to this Group, or any of its subgroups, are returned.
+    #
+    def member_groups(recursive = false)
+      @member_groups ||= Group.find(:all, distinguishedname: @entry[:member]).delete_if(&:nil?)
+      if recursive
+        member_groups.each do |group|
+          @member_groups.concat(group.member_groups(true))
+        end
+      end
+      @member_groups
+    end
 
-		#
-		# Returns an array of Group objects that this Group belongs to.
-		#
-		def groups
-			return [] if memberOf.nil?
-			@groups ||= Group.find(:all, :distinguishedname => @entry.memberOf).delete_if { |g| g.nil? }
-		end
-	end
+    #
+    # Returns an array of Group objects that this Group belongs to.
+    #
+    def groups
+      return [] if memberOf.nil?
+      @groups ||= Group.find(:all, distinguishedname: @entry.memberOf).delete_if(&:nil?)
+    end
+  end
 end

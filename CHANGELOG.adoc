@@ -9,4 +9,3 @@ Version 1.6.2 (2015-06-04)
 .Additions and changes
 - Add from_dn method in base to access a single entry
 - Add an experimental security group creation
-

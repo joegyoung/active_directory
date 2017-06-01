@@ -23,7 +23,7 @@ module ActiveDirectory
     class Date
       #
       # Converts a time object into an ISO8601 format compatable with Active Directory
-      # 
+      #
       def self.encode(local_time)
         local_time.strftime('%Y%m%d%H%M%S.0Z')
       end

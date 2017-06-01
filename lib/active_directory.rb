@@ -38,58 +38,57 @@ require 'active_directory/field_type/group_dn_array.rb'
 require 'active_directory/field_type/member_dn_array.rb'
 
 module ActiveDirectory
-  
-  #Special Fields
+  # Special Fields
   def self.special_fields
     @@special_fields
   end
 
-  def self.special_fields= sp_fields
+  def self.special_fields=(sp_fields)
     @@special_fields = sp_fields
   end
 
   @@special_fields = {
 
-    #All objects in the AD
-    :Base => {
-      :objectguid => :Binary,
-      :whencreated => :Date,
-      :whenchanged => :Date,
-      :memberof => :DnArray,
+    # All objects in the AD
+    Base: {
+      objectguid: :Binary,
+      whencreated: :Date,
+      whenchanged: :Date,
+      memberof: :DnArray
     },
 
-    #User objects
-    :User => {
-      :objectguid => :Binary,
-      :whencreated => :Date,
-      :whenchanged => :Date,
-      :objectsid => :Binary,
-      :msexchmailboxguid => :Binary,
-      :msexchmailboxsecuritydescriptor => :Binary,
-      :lastlogontimestamp => :Timestamp,
-      :pwdlastset => :Timestamp,
-      :accountexpires => :Timestamp,
-      :memberof => :MemberDnArray,
+    # User objects
+    User: {
+      objectguid: :Binary,
+      whencreated: :Date,
+      whenchanged: :Date,
+      objectsid: :Binary,
+      msexchmailboxguid: :Binary,
+      msexchmailboxsecuritydescriptor: :Binary,
+      lastlogontimestamp: :Timestamp,
+      pwdlastset: :Timestamp,
+      accountexpires: :Timestamp,
+      memberof: :MemberDnArray
     },
 
-    #Group objects
-    :Group => {
-      :objectguid => :Binary,
-      :whencreated => :Date,
-      :whenchanged => :Date,
-      :objectsid => :Binary,
-      :memberof => :GroupDnArray,
-      :member => :MemberDnArray,
+    # Group objects
+    Group: {
+      objectguid: :Binary,
+      whencreate: :Date,
+      whenchanged: :Date,
+      objectsid: :Binary,
+      memberof: :GroupDnArray,
+      member: :MemberDnArray
     },
 
-    #Computer objects
-    :Computer => {
-      :objectguid => :Binary,
-      :whencreated => :Date,
-      :whenchanged => :Date,
-      :objectsid => :Binary,
-      :memberof => :GroupDnArray,
-      :member => :MemberDnArray,
-    },
+    # Computer objects
+    Computer: {
+      objectguid: :Binary,
+      whencreated: :Date,
+      whenchanged: :Date,
+      objectsid: :Binary,
+      memberof: :GroupDnArray,
+      member: :MemberDnArray
+    }
   }
 end
