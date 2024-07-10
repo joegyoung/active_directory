@@ -520,9 +520,10 @@ module ActiveDirectory
       ldap = Net::LDAP.new(settings)
 
       if ldap.rename(
-        olddn: distinguishedName,
-        newrdn: new_rdn,
-        delete_attributes: false
+				:olddn => distinguishedName,
+				:newrdn => "cn=#{cn}",
+				:new_superior => new_rdn,
+				:delete_attributes => true
       )
         return true
       else
