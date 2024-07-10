@@ -21,8 +21,8 @@ Gem::Specification.new do |s|
     'README.md'
   ]
 
-  s.required_ruby_version = '~> 2'
-  s.add_dependency 'net-ldap', '~> 0'
+  s.required_ruby_version = '~> 4'
+  s.add_dependency 'net-ldap', '~> ">= 0.1.1'
   s.add_dependency 'bindata', '~> 2'
 
   s.add_development_dependency 'minitest', '~> 5'
