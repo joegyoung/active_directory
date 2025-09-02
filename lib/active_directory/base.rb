@@ -509,9 +509,12 @@ module ActiveDirectory
     # Net::LDAP#modrdn method, or provide a similar method for
     # moving / renaming LDAP entries.
     #
-    def move(new_rdn)
-      return false if new_record?
+   def move(new_rdn)
+     return false if new_record?
       puts "Moving #{distinguishedName} to RDN: #{new_rdn}"
+      old_user_dn = distinguishedName;
+      new_ou_dn = new_rdn
+      new_rdn = distinguishedName.split(',').first
 
       settings = @@settings.dup
       settings[:port] = 636
@@ -520,16 +523,17 @@ module ActiveDirectory
       ldap = Net::LDAP.new(settings)
 
       if ldap.rename(
-        olddn: distinguishedName,
+        olddn: old_user_dn,
         newrdn: new_rdn,
-        delete_attributes: false
+        delete_attributes: true,
+        new_superior: new_ou_dn
       )
         return true
       else
         puts Base.error
         return false
       end
-    end
+   end
 
     # FIXME: Need to document the Base::new
     def initialize(attributes = {}) # :nodoc:
