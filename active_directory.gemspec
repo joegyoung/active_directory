@@ -1,4 +1,4 @@
-require File.expand_path('./lib/active_directory/version', __FILE__)
+require File.expand_path('../lib/active_directory/version', __FILE__)
 
 Gem::Specification.new do |s|
   s.name = 'active_directory'
