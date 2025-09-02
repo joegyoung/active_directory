@@ -1,4 +1,5 @@
 require File.expand_path('../lib/active_directory/version', __FILE__)
+require 'date'
 
 Gem::Specification.new do |s|
   s.name = 'active_directory'
